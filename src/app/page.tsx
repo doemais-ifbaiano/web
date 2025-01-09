@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { Footer } from "@/components/Footer/Footer";
 import { Header } from "@/components/Header/Header";
+import Link from "next/link";
 
 const App = () => {
   return (
@@ -30,9 +31,11 @@ const App = () => {
             <p className="mt-2 text-black dark:text-600">
               Sua contribuição ajuda a transformar vidas
             </p>
-            <button className="mt-4 px-6 py-3 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400">
-              Clique aqui e seja um doador
-            </button>
+            <Link href="/cadastro/etapa1">
+              <button className="mt-4 px-6 py-3 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400">
+                Clique aqui e seja um doador
+              </button>
+            </Link>
           </div>
         </section>
       </main>
