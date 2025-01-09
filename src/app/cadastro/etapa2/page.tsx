@@ -4,6 +4,9 @@ import { Input, Button, Checkbox } from '@nextui-org/react';
 import { useState, useEffect } from 'react';
 import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { auth } from '@/firebase/firebaseConfig';
+import { getFirestore, doc, setDoc } from 'firebase/firestore';
+
+const db = getFirestore();
 
 const Etapa2 = () => {
   const [email, setEmail] = useState('');
@@ -38,26 +41,18 @@ const Etapa2 = () => {
 
       await updateProfile(user, { displayName: etapa1Data.name });
 
-      // Envia os dados para o serviço
-      const response = await fetch('/api/cadastro', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email,
-          username: etapa1Data.name,
-          uid: user.uid,
-          giver: {
-            name: etapa1Data.name,
-            cpfCnpj: etapa1Data.cpfCnpj,
-            phoneNumber: etapa1Data.phoneNumber,
-            birthDate: new Date(etapa1Data.birthDate),
-          },
-        }),
+      // Salva os dados no Firestore
+      await setDoc(doc(db, 'users', user.uid), {
+        email,
+        username: etapa1Data.name,
+        giver: {
+          name: etapa1Data.name,
+          cpfCnpj: etapa1Data.cpfCnpj,
+          phoneNumber: etapa1Data.phoneNumber,
+          birthDate: new Date(etapa1Data.birthDate),
+        },
+        createdAt: new Date(),
       });
-
-      if (!response.ok) {
-        throw new Error('Erro ao salvar os dados no servidor.');
-      }
 
       window.location.href = '/cadastro/sucesso';
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
