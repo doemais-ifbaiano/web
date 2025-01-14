@@ -1,13 +1,7 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-// Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getAnalytics, isSupported } from "firebase/analytics";
-import { getAuth } from "firebase/auth";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+import { initializeApp } from 'firebase/app';
+import { getAuth } from 'firebase/auth';
+import { getAnalytics, isSupported } from 'firebase/analytics';
 
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   apiKey: "AIzaSyCVDdcsN5w6lmn8K_Qyw4aggt7pwSu070c",
   authDomain: "doe-mais-8892d.firebaseapp.com",
@@ -18,20 +12,19 @@ const firebaseConfig = {
   measurementId: "G-S0SYBRVSV6"
 };
 
-if (typeof window !== "undefined") {
+// Inicialize o Firebase
+const app = initializeApp(firebaseConfig);
+export const auth = getAuth(app);
+
+// Inicialize o Analytics somente no cliente e em ambientes suportados
+export let analytics: ReturnType<typeof getAnalytics> | null = null;
+
+if (typeof window !== 'undefined') {
   isSupported().then((supported) => {
     if (supported) {
-      const analytics = getAnalytics();
-      console.log("Firebase Analytics iniciado.");
-    } else {
-      console.warn("Firebase Analytics não é suportado neste ambiente.");
+      analytics = getAnalytics(app);
     }
   });
 }
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
-export const auth = getAuth(app);
 
 export { initializeApp };

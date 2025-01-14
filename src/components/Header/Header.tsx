@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { Button } from "@nextui-org/react";
+import Link from "next/link";
 
 export const Header = () => {
   return (
@@ -31,15 +32,19 @@ export const Header = () => {
           </a>
         </nav>
         <div className="flex space-x-4 ml-auto">
-          <Button
-            color="secondary"
-            className="bg-purple-500 text-white rounded-3g h-8 w-40"
-          >
-            Seja doador
-          </Button>
-          <Button color="secondary" className="rounded-3g h-8 w-40">
-            Faça Login
-          </Button>
+          <Link href="/cadastro/etapa1">
+            <Button
+              color="secondary"
+              className="bg-purple-500 text-white rounded-3g h-8 w-40"
+            >
+              Seja doador
+            </Button>
+          </Link>
+          <Link href="/login">
+            <Button color="secondary" className="rounded-3g h-8 w-40">
+              Faça Login
+            </Button>
+          </Link>
         </div>
       </div>
     </header>
