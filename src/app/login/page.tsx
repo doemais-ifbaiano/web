@@ -23,7 +23,7 @@ const Login = () => {
     e.preventDefault();
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      router.push("/dashboard");
+      router.push("/");
     } catch (err: any) {
       setError("Erro ao realizar login. Verifique suas credenciais.");
     }
