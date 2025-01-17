@@ -104,7 +104,7 @@ const Login = () => {
           <div className="flex items-center justify-between mb-6 text-black">
             <Checkbox className="text-black-600">Mantenha-me conectado</Checkbox>
             <a
-              href="/esqueci-senha"
+              href="/recuperar-senha"
               className="text-sm text-black-600 hover:underline"
             >
               Esqueceu sua senha?
