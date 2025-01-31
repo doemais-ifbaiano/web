@@ -4,11 +4,56 @@ import Image from "next/image";
 import { Input, Button } from "@nextui-org/react";
 import { useState } from "react";
 
+// Função para validar CPF
+const validarCPF = (cpf: string) => {
+  cpf = cpf.replace(/\D/g, ""); // Remove caracteres não numéricos
+
+  if (cpf.length !== 11 || /^(\d)\1{10}$/.test(cpf)) return false; // Impede números repetidos
+
+  let soma = 0, resto;
+
+  for (let i = 0; i < 9; i++) soma += parseInt(cpf[i]) * (10 - i);
+  resto = (soma * 10) % 11;
+  if (resto === 10 || resto === 11) resto = 0;
+  if (resto !== parseInt(cpf[9])) return false;
+
+  soma = 0;
+  for (let i = 0; i < 10; i++) soma += parseInt(cpf[i]) * (11 - i);
+  resto = (soma * 10) % 11;
+  if (resto === 10 || resto === 11) resto = 0;
+  return resto === parseInt(cpf[10]);
+};
+
+// Função para validar CNPJ
+const validarCNPJ = (cnpj: string) => {
+  cnpj = cnpj.replace(/\D/g, ""); // Remove caracteres não numéricos
+
+  if (cnpj.length !== 14 || /^(\d)\1{13}$/.test(cnpj)) return false; // Impede números repetidos
+
+  const validarDigito = (cnpj: string, peso: number[]) => {
+    let soma = 0;
+    for (let i = 0; i < peso.length; i++) soma += parseInt(cnpj[i]) * peso[i];
+    let resto = soma % 11;
+    return resto < 2 ? 0 : 11 - resto;
+  };
+
+  const primeiroDigito = validarDigito(cnpj, [5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2]);
+  if (primeiroDigito !== parseInt(cnpj[12])) return false;
+
+  const segundoDigito = validarDigito(cnpj, [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2]);
+  return segundoDigito === parseInt(cnpj[13]);
+};
+
 const Etapa1 = () => {
   const [name, setName] = useState("");
   const [cpfCnpj, setCpfCnpj] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [birthDate, setBirthDate] = useState("");
+
+  const handleCpfCnpjChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/\D/g, ""); // Mantém apenas números
+    setCpfCnpj(value);
+  };
 
   const handleNext = (e: React.FormEvent) => {
     e.preventDefault();
@@ -18,13 +63,26 @@ const Etapa1 = () => {
       return;
     }
 
-    // Salva os dados no localStorage para serem usados na próxima etapa
+    if (cpfCnpj.length === 11 && !validarCPF(cpfCnpj)) {
+      alert("CPF inválido!");
+      return;
+    }
+
+    if (cpfCnpj.length === 14 && !validarCNPJ(cpfCnpj)) {
+      alert("CNPJ inválido!");
+      return;
+    }
+
+    if (cpfCnpj.length !== 11 && cpfCnpj.length !== 14) {
+      alert("O CPF deve ter 11 dígitos e o CNPJ deve ter 14.");
+      return;
+    }
+
     localStorage.setItem(
       "cadastroEtapa1",
       JSON.stringify({ name, cpfCnpj, phoneNumber, birthDate })
     );
 
-    // Redireciona para a próxima etapa usando window.location
     window.location.href = "/cadastro/etapa2";
   };
 
@@ -33,17 +91,16 @@ const Etapa1 = () => {
       <div className="flex flex-col items-center justify-center mr-60">
         <div className="flex items-center justify-center w-240 h-240">
           <Image
-            src="/logo - grande.svg" // Caminho do arquivo SVG na pasta public
+            src="/logo - grande.svg"
             alt="Logo DOE+"
-            width={240} // Largura ajustada (48 * 4 = 192px)
-            height={240} // Altura ajustada
+            width={240}
+            height={240}
             className="h-auto"
-            priority // Carregar imagem prioritariamente
+            priority
           />
         </div>
       </div>
 
-      {/* Container do formulário */}
       <div className="bg-white p-10 rounded-3xl shadow-xl w-full max-w-lg">
         <h1 className="text-2xl font-semibold text-gray-800 mb-2 text-center">
           Cadastrar usuário
@@ -67,12 +124,13 @@ const Etapa1 = () => {
           <div className="mb-6">
             <Input
               type="text"
-              placeholder="ex. 123.456.789-10"
+              placeholder="Digite seu CPF ou CNPJ (apenas numeros)"
               label="CPF/CNPJ"
               required
               value={cpfCnpj}
-              onChange={(e) => setCpfCnpj(e.target.value)}
+              onChange={handleCpfCnpjChange}
               className="w-full"
+              maxLength={14}
             />
           </div>
 
