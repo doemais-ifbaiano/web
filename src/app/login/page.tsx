@@ -128,7 +128,7 @@ const Login = () => {
 
           <div className="mt-6 border-t pt-4 text-center">
             <a
-              href="/cadastro"
+              href="/cadastro/etapa1"
               className="block w-full bg-purple-500 text-white py-2 rounded-lg hover:bg-purple-600"
             >
               Cadastrar-me
