@@ -1,17 +1,16 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import Image from "next/image";
 import { Input, Button } from "@nextui-org/react";
 import { useState } from "react";
 
-// Função para validar CPF
 const validarCPF = (cpf: string) => {
-  cpf = cpf.replace(/\D/g, ""); // Remove caracteres não numéricos
+  cpf = cpf.replace(/\D/g, "");
 
-  if (cpf.length !== 11 || /^(\d)\1{10}$/.test(cpf)) return false; // Impede números repetidos
+  if (cpf.length !== 11 || /^(\d)\1{10}$/.test(cpf)) return false;
 
   let soma = 0, resto;
-
   for (let i = 0; i < 9; i++) soma += parseInt(cpf[i]) * (10 - i);
   resto = (soma * 10) % 11;
   if (resto === 10 || resto === 11) resto = 0;
@@ -24,16 +23,15 @@ const validarCPF = (cpf: string) => {
   return resto === parseInt(cpf[10]);
 };
 
-// Função para validar CNPJ
 const validarCNPJ = (cnpj: string) => {
-  cnpj = cnpj.replace(/\D/g, ""); // Remove caracteres não numéricos
+  cnpj = cnpj.replace(/\D/g, "");
 
-  if (cnpj.length !== 14 || /^(\d)\1{13}$/.test(cnpj)) return false; // Impede números repetidos
+  if (cnpj.length !== 14 || /^(\d)\1{13}$/.test(cnpj)) return false;
 
   const validarDigito = (cnpj: string, peso: number[]) => {
     let soma = 0;
     for (let i = 0; i < peso.length; i++) soma += parseInt(cnpj[i]) * peso[i];
-    let resto = soma % 11;
+    const resto = soma % 11;
     return resto < 2 ? 0 : 11 - resto;
   };
 
@@ -44,15 +42,53 @@ const validarCNPJ = (cnpj: string) => {
   return segundoDigito === parseInt(cnpj[13]);
 };
 
+const calcularIdade = (dataNascimento: string) => {
+  const hoje = new Date();
+  const nascimento = new Date(dataNascimento);
+  let idade = hoje.getFullYear() - nascimento.getFullYear();
+  const mesAtual = hoje.getMonth();
+  const mesNascimento = nascimento.getMonth();
+
+  if (mesAtual < mesNascimento || (mesAtual === mesNascimento && hoje.getDate() < nascimento.getDate())) {
+    idade--;
+  }
+
+  return idade;
+};
+
 const Etapa1 = () => {
   const [name, setName] = useState("");
   const [cpfCnpj, setCpfCnpj] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [birthDate, setBirthDate] = useState("");
+  const [birthDateError, setBirthDateError] = useState<string | null>(null);
 
   const handleCpfCnpjChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.replace(/\D/g, ""); // Mantém apenas números
+    const value = e.target.value.replace(/\D/g, "");
     setCpfCnpj(value);
+  };
+
+  const validarDataNascimento = (data: string) => {
+    if (!data) {
+      setBirthDateError("Informe uma data válida.");
+      return false;
+    }
+
+    const hoje = new Date();
+    const nascimento = new Date(data);
+
+    if (nascimento > hoje) {
+      setBirthDateError("A data de nascimento não pode estar no futuro.");
+      return false;
+    }
+
+    if (calcularIdade(data) < 1) {
+      setBirthDateError("A idade mínima para cadastro é de 1 ano.");
+      return false;
+    }
+
+    setBirthDateError(null);
+    return true;
   };
 
   const handleNext = (e: React.FormEvent) => {
@@ -60,6 +96,10 @@ const Etapa1 = () => {
 
     if (!name || !cpfCnpj || !phoneNumber || !birthDate) {
       alert("Preencha todos os campos.");
+      return;
+    }
+
+    if (!validarDataNascimento(birthDate)) {
       return;
     }
 
@@ -78,10 +118,17 @@ const Etapa1 = () => {
       return;
     }
 
-    localStorage.setItem(
-      "cadastroEtapa1",
-      JSON.stringify({ name, cpfCnpj, phoneNumber, birthDate })
-    );
+    const cadastrosExistentes = JSON.parse(localStorage.getItem("cadastros") || "[]");
+
+    const jaCadastrado = cadastrosExistentes.some((cadastro: any) => cadastro.cpfCnpj === cpfCnpj);
+
+    if (jaCadastrado) {
+      alert("O CPF/CNPJ já está cadastrado!");
+      return;
+    }
+
+    const novoCadastro = { name, cpfCnpj, phoneNumber, birthDate };
+    localStorage.setItem("cadastros", JSON.stringify([...cadastrosExistentes, novoCadastro]));
 
     window.location.href = "/cadastro/etapa2";
   };
@@ -140,9 +187,13 @@ const Etapa1 = () => {
               label="Data de Nascimento"
               required
               value={birthDate}
-              onChange={(e) => setBirthDate(e.target.value)}
+              onChange={(e) => {
+                setBirthDate(e.target.value);
+                validarDataNascimento(e.target.value);
+              }}
               className="w-full"
             />
+            {birthDateError && <p className="text-red-500 text-sm mt-1">{birthDateError}</p>}
           </div>
 
           <div className="mb-6">
@@ -157,10 +208,7 @@ const Etapa1 = () => {
             />
           </div>
 
-          <Button
-            className="w-full mt-4 bg-purple-500 text-white hover:bg-purple-600"
-            type="submit"
-          >
+          <Button className="w-full mt-4 bg-purple-500 text-white hover:bg-purple-600" type="submit">
             Próximo
           </Button>
         </form>
