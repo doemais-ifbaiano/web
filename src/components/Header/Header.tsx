@@ -1,3 +1,5 @@
+// src/components/Header/Header.tsx
+
 import Image from "next/image";
 import { Button } from "@nextui-org/react";
 import Link from "next/link";
@@ -7,29 +9,29 @@ export const Header = () => {
     <header className="w-full bg-white py-4 shadow-md">
       <div className="container mx-auto flex justify-between items-center px-4">
         <Image
-          src="/logo - grande.svg" // Caminho do arquivo SVG na pasta public
+          src="/logo - grande.svg"
           alt="Logo DOE+"
-          width={48} // Largura ajustada (48 * 4 = 192px)
-          height={48} // Altura ajustada
+          width={48}
+          height={48}
           className="h-auto"
-          priority // Carregar imagem prioritariamente
+          priority
         />
         <nav className="flex items-center space-x-6 flex-grow justify-center">
-          <a href="#home" className="text-gray-700 hover:text-purple-500">
+          <Link href="/home" className="text-gray-700 hover:text-purple-500">
             Home
-          </a>
+          </Link>
           <a href="#sobre" className="text-gray-700 hover:text-purple-500">
             Sobre
           </a>
-          <a
-            href="#instituicoes"
-            className="text-gray-700 hover:text-purple-500"
-          >
+          <a href="#instituicoes" className="text-gray-700 hover:text-purple-500">
             Instituições
           </a>
           <a href="#contato" className="text-gray-700 hover:text-purple-500">
             Contato
           </a>
+          <Link href="/doacao-financeira" className="text-gray-700 hover:text-purple-500">
+            Doação Financeira
+          </Link>
         </nav>
         <div className="flex space-x-4 ml-auto">
           <Link href="/cadastro/etapa1">
